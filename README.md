@@ -20,3 +20,8 @@ sleep(1)
 ![Alt Text](/default-font-example.png "Screenshot the font")
 
 > 👉Note: The API only works if **CC** supports the graphics mode! The original mod or normal emulators dont have this feature normally!
+
+You can download it with the following command:
+```lua
+wget https://raw.githubusercontent.com/1Turtle/gFont-cc/main/gFont.lua
+```
