@@ -1,3 +1,6 @@
+if not term.getGraphicsMode then
+    error("Cannot run in-game. Requires CraftOS-PC.", 0)
+end
 if term.getGraphicsMode() == 0 then
     printError("OS doesnt support graphics mode 1 or higher!")
 end
