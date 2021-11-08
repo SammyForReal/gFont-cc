@@ -1,12 +1,12 @@
+--[[ Catch error ]]
 if not term.getGraphicsMode then
-    error("Cannot run in-game. Requires CraftOS-PC.", 0)
+    printError("OS doesnt support graphicsMode 1 or higher (from COS-PC)!")
 end
-if term.getGraphicsMode() == 0 then
-    printError("OS doesnt support graphics mode 1 or higher!")
-end
-local tCurrentFont
 
+
+local tCurrentFont
 local gFont = {}
+--[[ Sets a new given font as default. ]]
 function gFont.select(tFont)
     if type(tFont) == "table" then
         tCurrentFont = tFont
@@ -15,6 +15,9 @@ function gFont.select(tFont)
     printError("Invalid Font")
 end
 
+--[[ Returns the sizes of one char.
+     If font is not loaded, it will return 0, 0
+]]
 function gFont.getCharSizes()
     if type(tCurrentFont) == "table" then
         return tCurrentFont.size.x, tCurrentFont.size.y
@@ -39,6 +42,7 @@ function gFont.drawChar(nX, nY, sChar)
     return true
 end
 
+--[[ Writes text at given coordinates. ]]
 function gFont.write(nX, nY, sMsg)
     if type(tCurrentFont) ~= "table" then
         term.setGraphicsMode(0)
@@ -52,6 +56,12 @@ function gFont.write(nX, nY, sMsg)
     end
 end
 
+
+--[[ Default font
+     Size: 9x 9y
+     Chars: \000 - \159
+     Author: Sammy.K aka. 1Turtle
+]]
 local tDefaultFont = { ["size"]={}, ["chars"]={} }
 tDefaultFont.size = { ['x']=9, ['y']=9 }
 tDefaultFont.chars = {
