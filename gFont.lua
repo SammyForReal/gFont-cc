@@ -1,37 +1,43 @@
---[[ Catch error ]]
+local expect = require "cc.expect"
+local gFont = {}
+local tCurrentFont
+
 if not term.getGraphicsMode then
-    printError("OS doesnt support graphicsMode 1 or higher (from COS-PC)!")
+    return error("OS doesnt support \'graphicsMode\' 1 or higher (from COS-PC)!")
 end
 
 
-local tCurrentFont
-local gFont = {}
 --[[ Sets a new given font as default. ]]
 function gFont.select(tFont)
-    if type(tFont) == "table" then
-        tCurrentFont = tFont
-        return true
+    expect(1, tFont, "table")
+    if type(tFont.size.x and tFont.size.y) ~= "number" then
+        return error("Invalid format! Expected type 'number' for 'size.x' and 'size.y'.")
+    elseif type(tFont.chars) ~= "table" then
+        return error("Invalid format! Table 'chars' is missing.")
     end
-    printError("Invalid Font")
+    tCurrentFont = tFont
 end
 
 --[[ Returns the sizes of one char.
-     If font is not loaded, it will return 0, 0
+     If font is not loaded, it will return 0,0
 ]]
 function gFont.getCharSizes()
-    if type(tCurrentFont) == "table" then
+    if tCurrentFont then
         return tCurrentFont.size.x, tCurrentFont.size.y
     end
     return 0,0
 end
 
 function gFont.drawChar(nX, nY, sChar)
+    local err = true
     sChar = tCurrentFont.chars[string.byte(sChar)]
-    if type(sChar) ~= "table" then
+    if type(sChar) ~= "table" and tCurrentFont.chars[063] then
         sChar = tCurrentFont.chars[063]
+        err = false
+    else return false
     end
-    for y=1,tCurrentFont.size.y do
-        for x=1,tCurrentFont.size.x do
+    for y=1, tCurrentFont.size.y do
+        for x=1, tCurrentFont.size.x do
             local pxColor = term.getBackgroundColor()
             if sChar[y]:sub(x,x) ==  '#' then
                 pxColor = term.getTextColor()
@@ -39,17 +45,16 @@ function gFont.drawChar(nX, nY, sChar)
             term.setPixel(nX+x-1, nY+y-1, pxColor)
         end
     end
-    return true
+    return err
 end
 
 --[[ Writes text at given coordinates. ]]
 function gFont.write(nX, nY, sMsg)
-    if type(tCurrentFont) ~= "table" then
-        term.setGraphicsMode(0)
-        return printError("No font selected")
-    end if type(nX or nY) ~= "number" then
-        term.setGraphicsMode(0)
-        return printError("Invalid Argument #1/#2! Expected type \'number\'")
+    expect(1, nX, "number")
+    expect(2, nY, "number")
+    expect(3, sMsg, "string")
+    if not tCurrentFont then
+        return error("No font selected!")
     end
     for i=1,#sMsg do
         gFont.drawChar(nX+(i-1)*tCurrentFont.size.x, nY, sMsg:sub(i,i))
@@ -1666,9 +1671,11 @@ tDefaultFont.chars = {
     "####.....",
     "####....."}
 }
-tCurrentFont = tDefaultFont
+gFont.select(tDefaultFont)
+
 
 return {
+    ["select"] = gFont.select,
     ["write"] = gFont.write,
     ["getCharSizes"] = gFont.getCharSizes
 }
